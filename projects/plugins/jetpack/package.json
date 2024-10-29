@@ -77,7 +77,7 @@
 		"@wordpress/primitives": "3.53.0",
 		"@wordpress/url": "3.56.0",
 		"@wordpress/viewport": "5.32.0",
-		"@wordpress/widgets": "3.32.0",
+		"@wordpress/widgets": "4.9.0",
 		"@wordpress/wordcount": "3.55.0",
 		"bounding-client-rect": "1.0.5",
 		"classnames": "2.3.2",
