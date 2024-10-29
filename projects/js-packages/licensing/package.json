@@ -28,7 +28,7 @@
 		"@wordpress/i18n": "4.55.0",
 		"@wordpress/icons": "9.46.0",
 		"classnames": "2.3.2",
-		"prop-types": "15.7.2"
+		"prop-types": "15.8.1"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
