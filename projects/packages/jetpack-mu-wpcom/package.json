@@ -51,7 +51,7 @@
 		"@wordpress/api-fetch": "6.52.0",
 		"@wordpress/base-styles": "4.46.0",
 		"@wordpress/components": "27.3.0",
-		"@wordpress/data": "9.25.0",
+		"@wordpress/data": "10.9.0",
 		"@wordpress/dom-ready": "^3.48.0",
 		"@wordpress/hooks": "3.55.0",
 		"@wordpress/i18n": "4.55.0",
