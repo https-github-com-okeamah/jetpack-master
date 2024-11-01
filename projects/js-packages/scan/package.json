@@ -53,7 +53,7 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/api-fetch": "6.52.0",
-		"@wordpress/element": "5.32.0",
+		"@wordpress/element": "6.9.0",
 		"@wordpress/i18n": "4.55.0",
 		"@wordpress/url": "3.56.0",
 		"debug": "4.3.4",
