@@ -21,7 +21,7 @@
 	},
 	"dependencies": {
 		"@wordpress/i18n": "4.55.0",
-		"zod": "3.22.3"
+		"zod": "3.23.8"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
