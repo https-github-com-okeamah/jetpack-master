@@ -20,7 +20,7 @@
 	"browserslist": "extends @wordpress/browserslist-config",
 	"dependencies": {
 		"@automattic/jetpack-idc": "workspace:*",
-		"@wordpress/data": "9.25.0",
+		"@wordpress/data": "10.9.0",
 		"@wordpress/element": "5.32.0"
 	},
 	"devDependencies": {
