@@ -24,7 +24,7 @@
 		"@babel/compat-data": "7.23.5",
 		"@babel/helper-compilation-targets": "7.23.6",
 		"@babel/plugin-transform-runtime": "7.24.0",
-		"@babel/preset-env": "7.24.0",
+		"@babel/preset-env": "7.25.8",
 		"@babel/preset-react": "7.23.3",
 		"@babel/preset-typescript": "7.23.3",
 		"@cerner/duplicate-package-checker-webpack-plugin": "2.3.0",
