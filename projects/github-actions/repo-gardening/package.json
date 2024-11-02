@@ -18,7 +18,7 @@
 		"compare-versions": "3.6.0",
 		"glob": "7.1.6",
 		"moment": "2.29.4",
-		"node-fetch": "2.6.7"
+		"node-fetch": "3.3.2"
 	},
 	"devDependencies": {
 		"@vercel/ncc": "0.36.1"
