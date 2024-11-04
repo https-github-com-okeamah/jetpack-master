@@ -19,7 +19,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
-		"@wordpress/data": "9.25.0",
+		"@wordpress/data": "10.9.0",
 		"@wordpress/date": "4.55.0",
 		"@wordpress/element": "5.32.0",
 		"@wordpress/i18n": "4.55.0",
