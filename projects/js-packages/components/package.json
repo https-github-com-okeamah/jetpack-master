@@ -24,7 +24,7 @@
 		"@wordpress/date": "4.55.0",
 		"@wordpress/element": "5.32.0",
 		"@wordpress/i18n": "4.55.0",
-		"@wordpress/icons": "9.46.0",
+		"@wordpress/icons": "10.9.0",
 		"classnames": "2.3.2",
 		"prop-types": "^15.7.2",
 		"qrcode.react": "3.1.0",
