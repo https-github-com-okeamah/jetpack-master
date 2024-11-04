@@ -10,7 +10,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-react-data-sync-client": "workspace:*",
 		"@react-spring/core": "9.7.3",
-		"@react-spring/web": "9.7.3",
+		"@react-spring/web": "9.7.5",
 		"@types/react": "18.2.74",
 		"@types/react-router-dom": "5.3.3",
 		"@wordpress/components": "27.3.0",
