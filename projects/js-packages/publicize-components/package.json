@@ -36,7 +36,7 @@
 		"@wordpress/hooks": "3.55.0",
 		"@wordpress/html-entities": "3.55.0",
 		"@wordpress/i18n": "4.55.0",
-		"@wordpress/icons": "9.46.0",
+		"@wordpress/icons": "10.9.0",
 		"@wordpress/notices": "4.23.0",
 		"classnames": "2.3.2",
 		"prop-types": "15.8.1",
