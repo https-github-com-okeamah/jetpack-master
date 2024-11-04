@@ -18,7 +18,7 @@
 		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@babel/runtime": "^7",
 		"@wordpress/browserslist-config": "5.38.0",
-		"@wordpress/components": "27.3.0",
+		"@wordpress/components": "28.9.0",
 		"@wordpress/compose": "6.32.0",
 		"@wordpress/data": "9.25.0",
 		"@wordpress/date": "4.55.0",
