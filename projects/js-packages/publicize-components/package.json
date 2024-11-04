@@ -28,7 +28,7 @@
 		"@wordpress/block-editor": "12.23.0",
 		"@wordpress/blocks": "12.32.0",
 		"@wordpress/components": "27.3.0",
-		"@wordpress/compose": "6.32.0",
+		"@wordpress/compose": "7.9.0",
 		"@wordpress/data": "9.25.0",
 		"@wordpress/edit-post": "7.32.0",
 		"@wordpress/editor": "13.32.0",
