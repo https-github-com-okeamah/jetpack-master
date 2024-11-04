@@ -69,7 +69,7 @@
 		"@wordpress/blocks": "12.32.0",
 		"@wordpress/components": "27.3.0",
 		"@wordpress/compose": "6.32.0",
-		"@wordpress/core-data": "6.32.0",
+		"@wordpress/core-data": "7.9.0",
 		"@wordpress/data": "9.25.0",
 		"@wordpress/date": "4.55.0",
 		"@wordpress/dom-ready": "3.55.0",
