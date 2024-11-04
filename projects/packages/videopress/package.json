@@ -81,7 +81,7 @@
 		"@wordpress/url": "3.56.0",
 		"classnames": "2.3.2",
 		"debug": "4.3.4",
-		"filesize": "8.0.6",
+		"filesize": "10.1.6",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"react-router-dom": "^5.3.4",
