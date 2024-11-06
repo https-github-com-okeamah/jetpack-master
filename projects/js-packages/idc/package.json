@@ -10,7 +10,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@wordpress/base-styles": "5.5.0",
-		"@wordpress/components": "28.5.0",
+		"@wordpress/components": "28.9.0",
 		"@wordpress/compose": "7.5.0",
 		"@wordpress/data": "10.5.0",
 		"@wordpress/element": "6.5.0",
