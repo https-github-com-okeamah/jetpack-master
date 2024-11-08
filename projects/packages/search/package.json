@@ -50,7 +50,7 @@
 		"fast-json-stable-stringify": "2.1.0",
 		"lodash": "4.17.21",
 		"photon": "4.0.0",
-		"preact": "10.22.1",
+		"preact": "10.24.3",
 		"prop-types": "15.7.2",
 		"q-flat": "1.0.7",
 		"qss": "2.0.3",
