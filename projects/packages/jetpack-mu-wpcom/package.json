@@ -68,7 +68,7 @@
 		"@wordpress/hooks": "4.5.0",
 		"@wordpress/i18n": "5.5.0",
 		"@wordpress/icons": "10.5.0",
-		"@wordpress/plugins": "7.5.0",
+		"@wordpress/plugins": "7.10.0",
 		"@wordpress/private-apis": "^1.2.0",
 		"@wordpress/url": "4.5.0",
 		"clsx": "2.1.1",
