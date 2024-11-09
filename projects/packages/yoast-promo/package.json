@@ -25,7 +25,7 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/components": "28.5.0",
-		"@wordpress/data": "10.5.0",
+		"@wordpress/data": "10.10.0",
 		"@wordpress/edit-post": "8.5.0",
 		"@wordpress/element": "6.5.0",
 		"@wordpress/i18n": "5.5.0",
