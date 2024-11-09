@@ -31,7 +31,7 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-explat": "workspace:*",
 		"@automattic/jetpack-licensing": "workspace:*",
-		"@tanstack/react-query": "5.20.5",
+		"@tanstack/react-query": "5.59.15",
 		"@wordpress/api-fetch": "7.5.0",
 		"@wordpress/components": "28.5.0",
 		"@wordpress/compose": "7.5.0",
