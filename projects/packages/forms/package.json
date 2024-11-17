@@ -35,7 +35,7 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/block-editor": "14.4.0",
-		"@wordpress/blocks": "13.9.0",
+		"@wordpress/blocks": "13.10.0",
 		"@wordpress/compose": "7.9.0",
 		"@wordpress/core-data": "7.9.0",
 		"@wordpress/data": "10.9.0",
