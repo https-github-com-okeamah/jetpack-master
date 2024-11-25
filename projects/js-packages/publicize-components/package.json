@@ -30,7 +30,7 @@
 		"@wordpress/api-fetch": "7.9.0",
 		"@wordpress/block-editor": "14.4.0",
 		"@wordpress/blocks": "13.9.0",
-		"@wordpress/components": "28.9.0",
+		"@wordpress/components": "28.11.0",
 		"@wordpress/compose": "7.9.0",
 		"@wordpress/data": "10.9.0",
 		"@wordpress/dataviews": "4.6.0",
