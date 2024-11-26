@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 9.6.19
+ * Stubs automatically generated from PHPUnit 9.6.21
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -825,7 +825,7 @@ abstract class Assert
      *
      * @phan-param ExpectedType $expected
      *
-     * @phan-assert =ExpectedType $actual
+     * @phan-assert ExpectedType $actual
      */
     public static function assertSame($expected, $actual, string $message = ''): void
     {
@@ -852,7 +852,7 @@ abstract class Assert
      *
      * @phan-param class-string<ExpectedType> $expected
      *
-     * @phan-assert =ExpectedType $actual
+     * @phan-assert ExpectedType $actual
      */
     public static function assertInstanceOf(string $expected, $actual, string $message = ''): void
     {
@@ -2773,7 +2773,7 @@ function assertObjectNotHasProperty(string $attributeName, object $object, strin
  *
  * @phan-param ExpectedType $expected
  *
- * @phan-assert =ExpectedType $actual
+ * @phan-assert ExpectedType $actual
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -2808,7 +2808,7 @@ function assertNotSame($expected, $actual, string $message = '', ...$func_get_ar
  *
  * @phan-param class-string<ExpectedType> $expected
  *
- * @phan-assert =ExpectedType $actual
+ * @phan-assert ExpectedType $actual
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -7152,7 +7152,7 @@ abstract class UnaryOperator extends \PHPUnit\Framework\Constraint\Operator
     {
     }
     /**
-     * Transforms string returned by the memeber constraint's toString() or
+     * Transforms string returned by the member constraint's toString() or
      * failureDescription() such that it reflects constraint's participation in
      * this expression.
      *

@@ -5,6 +5,92 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.5.3 - 2024-11-25
+### Changed
+- Updated package dependencies. [#40288]
+
+## 3.5.2 - 2024-11-14
+### Changed
+- Update dependencies.
+
+## 3.5.1 - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## 3.5.0 - 2024-10-14
+### Added
+- Babel preset: Add default for base `targets` option, replacing default `.presetEnv.targets`. [#39629]
+- Babel preset: Add `autoWpPolyfill` option. [#39629]
+
+### Fixed
+- Babel preset: Fix `pluginPreserveI18n` option. [#39629]
+- Update documentation for `DependencyExtractionPlugin` after #38877 and #38430. [#39629]
+
+## 3.4.4 - 2024-10-10
+### Changed
+- Updated package dependencies.
+
+## 3.4.3 - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## 3.4.2 - 2024-09-26
+### Changed
+- Updated package dependencies. [#39534]
+
+## 3.4.1 - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## 3.4.0 - 2024-09-05
+### Changed
+- Updated connection js to load its bundle via connection package [#38877]
+- Updated package dependencies. [#39176]
+
+## 3.3.3 - 2024-08-29
+### Changed
+- Updated package dependencies. [#39111]
+
+## 3.3.2 - 2024-08-21
+### Changed
+- Internal updates.
+
+## 3.3.1 - 2024-08-15
+### Changed
+- Updated package dependencies. [#38662]
+
+## 3.3.0 - 2024-08-08
+### Added
+- Added jetpack-initial-state package to consolidate the logic for Initial state [#38430]
+
+## 3.2.11 - 2024-07-24
+### Added
+- Pass default Babel options to I18nCheckWebpackPlugin if none are supplied, as we already do for TranspileRule. [#38482]
+
+## 3.2.10 - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## 3.2.9 - 2024-06-13
+### Changed
+- Updated package dependencies. [#37822]
+
+## 3.2.8 - 2024-06-12
+### Changed
+- Updated package dependencies. [#37796]
+
+## 3.2.7 - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
+## 3.2.6 - 2024-05-16
+### Changed
+- Updated package dependencies. [#37379]
+
+## 3.2.5 - 2024-05-06
+### Changed
+- Updated package dependencies. [#37147]
+
 ## 3.2.4 - 2024-04-08
 ### Changed
 - Updated package dependencies. [#36760]
@@ -95,8 +181,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.5.9 - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## 1.5.8 - 2023-08-09
 ### Changed

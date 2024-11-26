@@ -11,18 +11,6 @@ namespace Automattic\JetpackCRM;
 // block direct access
 defined( 'ZEROBSCRM_PATH' ) || exit;
 
-use MailPoet\Config\Changelog;
-use MailPoet\DI\ContainerWrapper;
-use MailPoet\Models\Segment;
-use MailPoet\Models\Subscriber;
-use MailPoet\Models\SubscriberSegment;
-use MailPoet\Entities\subscriberEntity;
-use MailPoet\Subscribers\SubscribersRepository;
-use MailPoet\Subscribers\RequiredCustomFieldValidator;
-use MailPoet\Subscribers\SubscriberCustomFieldEntity;
-use MailPoet\Subscribers\Source;
-use MailPoet\Util\Helpers;
-use MailPoet\WP\Functions as WPFunctions;
 use MailPoet\API\MP\v1\APIException;
 
 /**
@@ -282,7 +270,7 @@ class Mailpoet {
 		global $zbs;
 
 		// Contact Tabs
-		if ( $zbs->isDAL2() && zeroBSCRM_is_customer_view_page() ){
+		if ( zeroBSCRM_is_customer_view_page() ) {
 
 			require_once JPCRM_MAILPOET_ROOT_PATH . 'includes/jpcrm-mailpoet-contact-tabs.php';
 			$this->contact_tabs = Mailpoet_Contact_Tabs::instance();

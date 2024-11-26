@@ -61,7 +61,7 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Retrieves tracks quantity.
 	 *
-	 * @returns int number of tracks
+	 * @return int number of tracks
 	 */
 	public static function get_tracks_quantity() {
 		/**
@@ -116,6 +116,10 @@ class Jetpack_Podcast_Helper {
 				);
 			} else {
 				$tracks = $this->get_track_list();
+			}
+
+			if ( is_wp_error( $tracks ) ) {
+				return $tracks;
 			}
 
 			if ( empty( $tracks ) ) {

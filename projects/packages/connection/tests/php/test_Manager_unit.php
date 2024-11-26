@@ -57,11 +57,11 @@ class ManagerTest extends TestCase {
 	 */
 	public function set_up() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->setMethods( array( 'get_tokens', 'get_connection_owner_id', 'unlink_user_from_wpcom', 'update_connection_owner_wpcom', 'disconnect_site_wpcom' ) )
+			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id', 'unlink_user_from_wpcom', 'update_connection_owner_wpcom', 'disconnect_site_wpcom' ) )
 			->getMock();
 
 		$this->tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
-			->setMethods( array( 'get_access_token', 'disconnect_user' ) )
+			->onlyMethods( array( 'get_access_token', 'disconnect_user' ) )
 			->getMock();
 
 		$this->manager->method( 'get_tokens' )->willReturn( $this->tokens );
@@ -466,6 +466,35 @@ class ManagerTest extends TestCase {
 				false,
 			),
 		);
+	}
+
+	/**
+	 * Test disconnecting a user from WordPress.com twice to make sure we don't send excessive requests.
+	 */
+	public function test_disconnect_user_twice() {
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+		( new Tokens() )->update_user_token( $editor_id, sprintf( '%s.%s.%d', 'key', 'private', $editor_id ), false );
+
+		$this->manager->expects( $this->once() )
+			->method( 'unlink_user_from_wpcom' )
+			->willReturn( true );
+
+		$this->tokens->expects( $this->once() )
+			->method( 'disconnect_user' )
+			->willReturn( true );
+
+		$result_first  = $this->manager->disconnect_user( $editor_id );
+		$result_second = $this->manager->disconnect_user( $editor_id );
+
+		$this->assertTrue( $result_first );
+		$this->assertFalse( $result_second );
 	}
 
 	/**

@@ -40,14 +40,16 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'regenerate_tag_slugs', // Regenerate tag slugs
 	'create_workflows_table', // Create "workflows" table.
 	'invoice_language_fixes', // Store invoice statuses and mappings consistently
+	'gh3465_increase_city_field_size',  // from gh issue 3465, increases the city field size to 200
 	);
 
-global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
-		'288' => array('isDAL2','postsettings'),
-		'53'     => array('isDAL3','postsettings'),
-		'5402'   => array('isDAL3','postsettings'),
-		'55a'    => array( 'wp_loaded' ),
-	);
+global $zeroBSCRM_migrations_requirements; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+$zeroBSCRM_migrations_requirements = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	'288'  => array( 'postsettings' ),
+	'53'   => array( 'postsettings' ),
+	'5402' => array( 'postsettings' ),
+	'55a'  => array( 'wp_loaded' ),
+);
 
 
 // mark's a migration complete
@@ -217,19 +219,6 @@ function zeroBSCRM_migrations_run( $settingsArr = false, $run_at = 'init' ){
 		}
 
 	}
-
-}
-
-// Migration dependency check for DAL2
-function zeroBSCRM_migrations_checks_isDAL2(){
-
-	global $zbs; return $zbs->isDAL2();
-
-}
-// Migration dependency check for DAL3
-function zeroBSCRM_migrations_checks_isDAL3(){
-
-	global $zbs; return $zbs->isDAL3();
 
 }
 
@@ -1247,6 +1236,34 @@ function zeroBSCRM_migration_invoice_language_fixes() {
 	}
 
 	zeroBSCRM_migrations_markComplete( 'invoice_language_fixes', array( 'updated' => 1 ) );
+}
+
+/**
+ * From Gh Issue 3465, this migration increases the city field size to 200 chars
+ */
+function zeroBSCRM_migration_gh3465_increase_city_field_size() {
+
+	// SQLite doesn't support column modification.
+	$db_engine = jpcrm_database_engine();
+	if ( $db_engine === 'sqlite' ) {
+		return;
+	}
+
+	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	$sql = 'ALTER TABLE ' . $ZBSCRM_t['contacts'] . ' MODIFY COLUMN `zbsc_city` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+	$sql = 'ALTER TABLE ' . $ZBSCRM_t['contacts'] . ' MODIFY COLUMN `zbsc_seccity` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+	$sql = 'ALTER TABLE ' . $ZBSCRM_t['companies'] . ' MODIFY COLUMN `zbsco_city` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+	$sql = 'ALTER TABLE ' . $ZBSCRM_t['companies'] . ' MODIFY COLUMN `zbsco_seccity` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+	zeroBSCRM_migrations_markComplete( 'gh3465_increase_city_field_size', array( 'updated' => 1 ) );
 }
 
 /* ======================================================

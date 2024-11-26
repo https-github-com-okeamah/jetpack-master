@@ -21,6 +21,7 @@ export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
 export const PROMPT_TYPE_CHANGE_LANGUAGE = 'changeLanguage' as const;
 export const PROMPT_TYPE_USER_PROMPT = 'userPrompt' as const;
 export const PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT = 'jetpackFormCustomPrompt' as const;
+export const PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE = 'transformListToTable' as const;
 
 export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_SUMMARY_BY_TITLE,
@@ -35,6 +36,7 @@ export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
 	PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT,
+	PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE,
 ] as const;
 
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
@@ -108,7 +110,7 @@ export type BuildPromptOptionsProps = {
 };
 
 export type BuildPromptProps = {
-	generatedContent: string;
+	generatedContent?: string;
 	allPostContent?: string;
 	postContentAbove?: string;
 	currentPostTitle?: string;
@@ -123,7 +125,7 @@ export type BuildPromptProps = {
  * Meant for use by the block, not the extensions.
  *
  * @param {BuildPromptProps} options - The prompt options.
- * @returns {Array< PromptItemProps >} The prompt.
+ * @return {Array< PromptItemProps >} The prompt.
  * @throws {Error} If the type is not recognized.
  */
 export function buildPromptForBlock( {
@@ -153,3 +155,10 @@ export function buildPromptForBlock( {
 
 	return [ initialMessage, ...userMessages ];
 }
+
+export type BuildExtensionPromptProps = {
+	blockContent: string;
+	options: BuildPromptOptionsProps;
+	type: PromptTypeProp;
+	userPrompt?: string;
+};
