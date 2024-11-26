@@ -35,6 +35,6 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
-		"@wordpress/i18n": "5.9.0"
+		"@wordpress/i18n": "5.10.0"
 	}
 }
