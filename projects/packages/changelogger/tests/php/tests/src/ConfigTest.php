@@ -18,7 +18,6 @@ use Wikimedia\TestingAccessWrapper;
  * @covers \Automattic\Jetpack\Changelogger\Config
  */
 class ConfigTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Set up.
@@ -356,6 +355,7 @@ class ConfigTest extends TestCase {
 				'filename' => 'dummy.php',
 				'option'   => 'value',
 			),
+			// @phan-suppress-next-line PhanUndeclaredClassProperty -- Same.
 			$ret->c
 		);
 

@@ -2,10 +2,10 @@
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 5.5
-Tested up to: 6.5
-Requires PHP: 7.0
-Stable tag: 3.2.2
+Requires at least: 6.6
+Tested up to: 6.7
+Requires PHP: 7.2
+Stable tag: 3.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,21 +183,24 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.2.2 - 2024-04-02
+### 3.6.0 - 2024-11-22
 #### Added
-- Cache: Ensure cache engine is loading every time the Settings page loads.
-- Cache: Clear cache if Boost module settings are changed
-- Cache: Show notification in site health if cache system isn't loading.
-- Compatibility: Improved compatibility with SEO plugins for smoother Cloud CSS generation.
+- Cornerstone Pages: Added setting to allow selecting important pages.
 
 #### Changed
-- Cloud CSS: Optimize regeneration time.
-- Cloud CSS: Update REST API endpoint to be available even if the module is turned off.
-- Performance History: Sanitize graph annotation text.
-- Speed Score: More accurately detect which modules are active when a speed score is requested.
-- General: Only show installation errors on plugins page.
-- General: Updated package dependencies.
-- General: Update getting started and upgrade copies.
+- Critical CSS: Improved logic that generates URLs for critical CSS generation.
+- General: Improved compatibility with WordPress 6.7.
+- General: Updated badges used to show state of features.
+- Page Speed: Updated speed scores to be based on first cornerstone page.
+
+#### Removed
+- Image Guide: Removed URL parameter based override.
+
+#### Fixed
+- Image Size Analysis: Fixed UI not properly reflecting current state after interaction.
+- Page Speed: Fixed typo in Overall Score tooltip.
+- Performance History: Fixed tooltip behavior.
+- UI: Fixed Boost's menu counter sometimes displaying incorrectly.
 
 --------
 

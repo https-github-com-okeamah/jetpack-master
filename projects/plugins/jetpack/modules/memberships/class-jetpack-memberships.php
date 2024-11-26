@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
@@ -148,6 +149,14 @@ class Jetpack_Memberships {
 		'PLN' => 2.0,
 		'SEK' => 3.0,
 		'SGD' => 0.5,
+		'CZK' => 15.0,
+		'HUF' => 175.0,
+		'TWD' => 10.0,
+		'IDR' => 0,
+		'ILS' => 0,
+		'PHP' => 0,
+		'RUB' => 0,
+		'TRY' => 0,
 	);
 
 	/**
@@ -166,7 +175,7 @@ class Jetpack_Memberships {
 			self::$instance->register_init_hook();
 			// Yes, `pro-plan` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
 			$wpcom_plan_slug     = defined( 'ENABLE_PRO_PLAN' ) ? 'pro-plan' : 'personal-bundle';
-			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? $wpcom_plan_slug : 'jetpack_personal';
+			self::$required_plan = ( new Host() )->is_wpcom_simple() ? $wpcom_plan_slug : 'jetpack_personal';
 		}
 
 		return self::$instance;
@@ -198,6 +207,9 @@ class Jetpack_Memberships {
 			'is_deleted'      => array(
 				'meta' => $meta_prefix . 'is_deleted',
 			),
+			'is_sandboxed'    => array(
+				'meta' => $meta_prefix . 'is_sandboxed',
+			),
 		);
 		return $properties;
 	}
@@ -228,6 +240,10 @@ class Jetpack_Memberships {
 	 * Logs the subscriber out by clearing out the premium content cookie.
 	 */
 	public function subscriber_logout() {
+		if ( ! class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service' ) ) {
+			return;
+		}
+
 		Abstract_Token_Subscription_Service::clear_token_cookie();
 	}
 
@@ -407,6 +423,7 @@ class Jetpack_Memberships {
 				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npf', __( 'Could not find a plan for this button.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
 			}
 			if ( is_wp_error( $product ) ) {
+				'@phan-var WP_Error $product'; // `get_post` isn't supposed to return a WP_Error, so Phan is confused here. See also https://github.com/phan/phan/issues/3127
 				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npf-we', __( 'Encountered an error when getting the plan associated with this button:', 'jetpack' ) . ' ' . $product->get_error_message() . '. ' . __( ' Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
 			}
 			if ( $product->post_type !== self::$post_type_plan ) {
@@ -614,7 +631,7 @@ class Jetpack_Memberships {
 	 * @param int|null $user_id The user_id to unset in the cache, otherwise the entire static cache is cleared.
 	 * @return void
 	 */
-	public static function clear_cache( int $user_id = null ) {
+	public static function clear_cache( ?int $user_id = null ) {
 		if ( empty( $user_id ) ) {
 			self::$user_is_paid_subscriber_cache = array();
 			self::$user_can_view_post_cache      = array();
@@ -634,17 +651,23 @@ class Jetpack_Memberships {
 	public static function user_is_paid_subscriber( $valid_plan_ids = array(), $user_id = null ) {
 		if ( empty( $user_id ) ) {
 			$user_id = get_current_user_id();
+			if ( empty( $user_id ) ) {
+				return false;
+			}
 		}
-		if ( ! isset( self::$user_is_paid_subscriber_cache[ $user_id ] ) ) {
+		// sort and stringify sorted valid plan ids to use as a cache key
+		sort( $valid_plan_ids );
+		$cache_key = $user_id . '_' . implode( ',', $valid_plan_ids );
+		if ( ! isset( self::$user_is_paid_subscriber_cache[ $cache_key ] ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 			if ( empty( $valid_plan_ids ) ) {
 				$valid_plan_ids = self::get_all_newsletter_plan_ids();
 			}
 			$paywall            = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service( $user_id );
 			$is_paid_subscriber = $paywall->visitor_can_view_content( $valid_plan_ids, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS );
-			self::$user_is_paid_subscriber_cache[ $user_id ] = $is_paid_subscriber;
+			self::$user_is_paid_subscriber_cache[ $cache_key ] = $is_paid_subscriber;
 		}
-		return self::$user_is_paid_subscriber_cache[ $user_id ];
+		return self::$user_is_paid_subscriber_cache[ $cache_key ];
 	}
 
 	/**
@@ -721,8 +744,26 @@ class Jetpack_Memberships {
 	 * @return bool
 	 */
 	public static function is_enabled_jetpack_recurring_payments() {
-		$api_available = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() );
+		$api_available = ( new Host() )->is_wpcom_simple() || Jetpack::is_connection_ready();
 		return $api_available;
+	}
+
+	/**
+	 * Whether to enable the blocks in the editor.
+	 * All Monetize blocks (except Simple Payments) need a user with at least `edit_posts` capability
+	 *
+	 * @return bool
+	 */
+	public static function should_enable_monetize_blocks_in_editor() {
+		if ( ! is_admin() ) {
+			// We enable the block for the front-end in all cases
+			return true;
+
+		}
+
+		$is_offline_mode                  = ( new Status() )->is_offline_mode();
+		$enable_monetize_blocks_in_editor = ( new Host() )->is_wpcom_simple() || ( ! $is_offline_mode );
+		return $enable_monetize_blocks_in_editor;
 	}
 
 	/**

@@ -170,7 +170,7 @@ class Admin {
 	 * Ajax handler for wp_ajax_grunion_export_to_gdrive.
 	 * Exports data to Google Drive, based on POST data.
 	 *
-	 * @see Grunion_Contact_Form_Plugin::get_feedback_entries_from_post
+	 * @see Contact_Form_Plugin::get_feedback_entries_from_post
 	 */
 	public function export_to_gdrive() {
 		$post_data = wp_unslash( $_POST );
@@ -190,8 +190,8 @@ class Admin {
 		$grunion     = Contact_Form_Plugin::init();
 		$export_data = $grunion->get_feedback_entries_from_post();
 
-		$fields    = array_keys( $export_data );
-		$row_count = count( reset( $export_data ) );
+		$fields    = is_array( $export_data ) ? array_keys( $export_data ) : array();
+		$row_count = ! is_array( $export_data ) || empty( $export_data ) ? 0 : count( reset( $export_data ) );
 
 		$sheet_data = array( $fields );
 
@@ -738,6 +738,18 @@ class Admin {
 			}
 		}
 
+		// Extract IP address if we still do not have it at this point.
+		if (
+			! isset( $content_fields['_feedback_ip'] )
+			&& is_array( $chunks )
+			&& ! empty( $chunks[0] )
+		) {
+			preg_match( '/^IP: (.+)$/m', $chunks[0], $matches );
+			if ( ! empty( $matches[1] ) ) {
+				$content_fields['_feedback_ip'] = $matches[1];
+			}
+		}
+
 		$response_fields = array_diff_key( $response_fields, array_flip( $non_printable_keys ) );
 
 		echo '<hr class="feedback_response__mobile-separator" />';
@@ -757,7 +769,7 @@ class Admin {
 		echo '<hr />';
 
 		echo '<div class="feedback_response__item">';
-		if ( isset( $content_fields['_feedback_ip'] ) ) {
+		if ( ! empty( $content_fields['_feedback_ip'] ) ) {
 			echo '<div class="feedback_response__item-key">' . esc_html__( 'IP', 'jetpack-forms' ) . '</div>';
 			echo '<div class="feedback_response__item-value">' . esc_html( $content_fields['_feedback_ip'] ) . '</div>';
 		}
@@ -969,11 +981,28 @@ class Admin {
 			}
 		}
 
-		if ( isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ) {
-			$fields = sanitize_text_field( stripslashes_deep( $_POST['fields'] ) );
-			usort( $fields, array( $this, 'grunion_sort_objects' ) );
+		$field_shortcodes = array();
 
-			$field_shortcodes = array();
+		if ( isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ) {
+			$fields = array_map(
+				function ( $field ) {
+					if ( is_array( $field ) ) {
+
+						foreach ( array( 'label', 'type', 'required' ) as $key ) {
+							if ( isset( $field[ $key ] ) ) {
+								$field[ $key ] = sanitize_text_field( wp_unslash( $field[ $key ] ) );
+							}
+						}
+
+						if ( isset( $field['options'] ) && is_array( $field['options'] ) ) {
+							$field['options'] = array_map( 'sanitize_text_field', array_map( 'wp_unslash', $field['options'] ) );
+						}
+					}
+					return $field;
+				},
+				$_POST['fields'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each item sanitized above.
+			);
+			usort( $fields, array( $this, 'grunion_sort_objects' ) );
 
 			foreach ( $fields as $field ) {
 				$field_attributes = array();
@@ -1399,8 +1428,7 @@ class Admin {
 		$query = 'post_type=feedback&post_status=publish';
 
 		if ( isset( $_POST['limit'] ) && isset( $_POST['offset'] ) ) {
-			// phpcs:ignore Generic.Strings.UnnecessaryStringConcat.Found -- Avoiding https://github.com/WordPress/WordPress-Coding-Standards/issues/2390
-			$query .= '&posts_per' . '_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
+			$query .= '&posts_per_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
 		}
 
 		$approved_feedbacks = get_posts( $query );
@@ -1518,10 +1546,23 @@ class Admin {
 	 * Show an admin notice if the "Empty Spam" or "Check Spam" process was unable to complete, probably due to a permissions error.
 	 */
 	public function grunion_feedback_admin_notice() {
+		$message = '';
+
 		if ( isset( $_GET['jetpack_empty_feedback_spam_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			echo '<div class="notice notice-error"><p>' . esc_html( __( 'An error occurred while trying to empty the Feedback spam folder.', 'jetpack-forms' ) ) . '</p></div>';
+			$message = esc_html__( 'An error occurred while trying to empty the Feedback spam folder.', 'jetpack-forms' );
 		} elseif ( isset( $_GET['jetpack_check_feedback_spam_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			echo '<div class="notice notice-error"><p>' . esc_html( __( 'An error occurred while trying to check for spam among the feedback you received.', 'jetpack-forms' ) ) . '</p></div>';
+			$message = esc_html__( 'An error occurred while trying to check for spam among the feedback you received.', 'jetpack-forms' );
 		}
+
+		if ( empty( $message ) ) {
+			return;
+		}
+
+		wp_admin_notice(
+			$message,
+			array(
+				'type' => 'error',
+			)
+		);
 	}
 }

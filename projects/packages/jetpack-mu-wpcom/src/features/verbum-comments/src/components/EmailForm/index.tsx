@@ -1,9 +1,10 @@
 import { signal, effect, batch, computed } from '@preact/signals';
+import clsx from 'clsx';
 import { useState, useEffect } from 'preact/hooks';
 import { translate } from '../../i18n';
 import { Name, Website, Email } from '../../images';
 import { mailLoginData, isMailFormInvalid, shouldStoreEmailData } from '../../state';
-import { classNames, getUserInfoCookie, isAuthRequired } from '../../utils';
+import { getUserInfoCookie, isAuthRequired } from '../../utils';
 import { NewCommentEmail } from '../new-comment-email';
 import { NewPostsEmail } from '../new-posts-email';
 import { EmailFormCookieConsent } from './email-form-cookie-consent';
@@ -76,17 +77,18 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 
 	return (
 		<div
-			className={ classNames( 'verbum-form', {
+			className={ clsx( 'verbum-form', {
 				open: shouldShowEmailForm,
 			} ) }
 		>
 			{ shouldShowEmailForm && (
 				<div className="verbum-form__wrapper">
 					<div className="verbum-form__content">
-						<label className="verbum__label">
+						<label htmlFor="verbum-email-form-email" className="verbum__label">
 							<Email />
 							<input
-								className={ classNames( 'verbum-form__email', {
+								id="verbum-email-form-email"
+								className={ clsx( 'verbum-form__email', {
 									'invalid-form-data': isValidEmail.value === false && isEmailTouched.value,
 								} ) }
 								type="email"
@@ -106,10 +108,11 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 							/>
 						</label>
 
-						<label className="verbum__label">
+						<label htmlFor="verbum-email-form-name" className="verbum__label">
 							<Name />
 							<input
-								className={ classNames( 'verbum-form__name', {
+								id="verbum-email-form-name"
+								className={ clsx( 'verbum-form__name', {
 									'invalid-form-data': isValidAuthor.value === false && isNameTouched.value,
 								} ) }
 								type="text"
@@ -127,9 +130,10 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 							/>
 						</label>
 
-						<label className="verbum__label">
+						<label htmlFor="verbum-email-form-website" className="verbum__label">
 							<Website />
 							<input
+								id="verbum-email-form-website"
 								className="verbum-form__website"
 								type="text"
 								spellCheck={ false }

@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Social, Recommended
  * Feature: Engagement
- * Additional Search Queries: facebook, jetpack publicize, tumblr, linkedin, social, tweet, connections, sharing, social media, automated, automated sharing, auto publish, auto tweet and like, auto tweet, facebook auto post, facebook posting
+ * Additional Search Queries: facebook, bluesky, threads, mastodon, instagram, jetpack publicize, tumblr, linkedin, social, tweet, connections, sharing, social media, automated, automated sharing, auto publish, auto tweet and like, auto tweet, facebook auto post, facebook posting
  *
  * @package automattic/jetpack
  */
@@ -24,7 +24,7 @@ class Jetpack_Publicize {
 	/**
 	 * Current status about Jetpack modules.
 	 *
-	 * @var Modules
+	 * @var Automattic\Jetpack\Modules
 	 */
 	public $modules;
 

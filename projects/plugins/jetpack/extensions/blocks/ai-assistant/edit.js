@@ -1,30 +1,41 @@
 /**
  * External dependencies
  */
-import { AIControl, UpgradeMessage, renderHTMLFromMarkdown } from '@automattic/jetpack-ai-client';
+import {
+	BlockAIControl,
+	UpgradeMessage,
+	renderHTMLFromMarkdown,
+} from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
-import { Notice, PanelBody, PanelRow, KeyboardShortcuts } from '@wordpress/components';
+import {
+	Notice,
+	PanelBody,
+	PanelRow,
+	KeyboardShortcuts,
+	ExternalLink,
+} from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
 import UsagePanel from '../../plugins/ai-assistant-plugin/components/usage-panel';
 import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-assistant-plugin/components/usage-panel/types';
-import { PLAN_TYPE_FREE, usePlanType } from '../../shared/use-plan-type';
-import ConnectPrompt from './components/connect-prompt';
+import ConnectBanner from '../../shared/components/connect-banner';
+import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../shared/use-plan-type';
 import FeedbackControl from './components/feedback-control';
+import QuotaExceededMessage, { FairUsageNotice } from './components/quota-exceeded-message';
 import ToolbarControls from './components/toolbar-controls';
-import UpgradePrompt from './components/upgrade-prompt';
-import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
 import useAIAssistant from './hooks/use-ai-assistant';
 import useAICheckout from './hooks/use-ai-checkout';
 import useAiFeature from './hooks/use-ai-feature';
+import useAiProductPage from './hooks/use-ai-product-page';
+import { getStoreBlockId } from './hooks/use-transform-to-assistant';
 import { isUserConnected } from './lib/connection';
 import './editor.scss';
 
@@ -49,6 +60,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		requestsCount,
 		requestsLimit,
 		currentTier,
+		loading: loadingAiFeature,
+		tierPlansEnabled,
 	} = useAiFeature();
 	const requestsRemaining = Math.max( requestsLimit - requestsCount, 0 );
 
@@ -112,6 +125,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const isLoadingCompletion = [ 'requesting', 'suggesting' ].includes( requestingState );
 
 	const connected = isUserConnected();
+
+	const { productPageUrl } = useAiProductPage();
 
 	/*
 	 * Auto request the prompt if we detect
@@ -184,7 +199,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const acceptLabel = isGeneratingTitle ? acceptTitleLabel : acceptContentLabel;
 
 	const moveCaretToEnd = element => {
-		const selection = window.getSelection();
+		const selection = element.ownerDocument.getSelection();
 		selection.selectAllChildren( element );
 		selection.collapseToEnd();
 		element.focus();
@@ -193,7 +208,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const handleGetSuggestion = ( ...args ) => {
 		getSuggestionFromOpenAI( ...args );
 		focusOnBlock();
-		return;
 	};
 
 	const handleChange = value => {
@@ -282,7 +296,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const blockProps = useBlockProps( {
 		ref: blockRef,
-		className: classNames( { 'is-waiting-response': isWaitingResponse } ),
+		className: clsx( { 'is-waiting-response': isWaitingResponse } ),
 	} );
 
 	const promptPlaceholder = __( 'Ask Jetpack AI…', 'jetpack' );
@@ -290,8 +304,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const banner = (
 		<>
-			{ isOverLimit && isSelected && <UpgradePrompt placement="ai-assistant-block" /> }
-			{ ! connected && <ConnectPrompt /> }
+			{ isOverLimit && isSelected && <QuotaExceededMessage placement="ai-assistant-block" /> }
+			{ ! connected && <ConnectBanner block="AI Assistant" /> }
 		</>
 	);
 
@@ -308,6 +322,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			) }
 		</>
 	);
+
+	const fairUsageNotice =
+		isOverLimit && planType === PLAN_TYPE_UNLIMITED ? <FairUsageNotice variant="muted" /> : null;
 
 	const trackUpgradeClick = useCallback(
 		event => {
@@ -340,11 +357,27 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					</div>
 				) }
 				<InspectorControls>
-					<PanelBody initialOpen={ true }>
-						<PanelRow>
-							<UsagePanel placement={ USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } />
-						</PanelRow>
-					</PanelBody>
+					{ fairUsageNotice && (
+						<div className="block-editor-block-card" style={ { paddingTop: 0 } }>
+							<span className="block-editor-block-icon"></span>
+							{ fairUsageNotice }
+						</div>
+					) }
+					{ /* Mock BlockCard component styles to keep alignment */ }
+					<div className="block-editor-block-card" style={ { paddingTop: 0 } }>
+						<span className="block-editor-block-icon"></span>
+						<ExternalLink href={ productPageUrl }>
+							{ __( 'Discover all features', 'jetpack' ) }
+						</ExternalLink>
+					</div>
+					{ ( planType === PLAN_TYPE_FREE ||
+						( tierPlansEnabled && planType !== PLAN_TYPE_UNLIMITED ) ) && (
+						<PanelBody initialOpen={ true }>
+							<PanelRow>
+								<UsagePanel placement={ USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } />
+							</PanelRow>
+						</PanelBody>
+					) }
 					<PanelBody initialOpen={ true }>
 						<PanelRow>
 							<FeedbackControl />
@@ -382,7 +415,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 						isGeneratingTitle={ isGeneratingTitle }
 					/>
 				) }
-				<AIControl
+				<BlockAIControl
 					ref={ aiControlRef }
 					disabled={ requireUpgrade || ! connected }
 					value={ attributes.userPrompt }
@@ -399,11 +432,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					acceptLabel={ acceptLabel }
 					showGuideLine={ contentIsLoaded }
 					showRemove={ attributes?.content?.length > 0 }
-					bannerComponent={ banner }
-					errorComponent={ errorNotice }
+					banner={ banner }
+					error={ errorNotice }
 					customFooter={
 						// Only show the upgrade message on each 5th request or if it's the first request - and only if the user is on the free plan
 						( requestsRemaining % 5 === 0 || requestsCount === 1 ) &&
+						! loadingAiFeature && // Don't show the upgrade message while the feature is loading
 						planType === PLAN_TYPE_FREE ? (
 							<UpgradeMessage
 								requestsRemaining={ requestsRemaining }

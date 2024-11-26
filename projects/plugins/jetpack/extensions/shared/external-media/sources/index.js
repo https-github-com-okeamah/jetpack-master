@@ -1,3 +1,4 @@
+import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { __ } from '@wordpress/i18n';
 import { GooglePhotosIcon, OpenverseIcon, PexelsIcon, JetpackMobileAppIcon } from '../../icons';
 import {
@@ -6,8 +7,14 @@ import {
 	SOURCE_OPENVERSE,
 	SOURCE_PEXELS,
 	SOURCE_JETPACK_APP_MEDIA,
+	SOURCE_JETPACK_AI_FEATURED_IMAGE,
+	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_MEDIA_SOURCE,
+	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK,
 } from '../constants';
 import GooglePhotosMedia from './google-photos';
+import JetpackAIFeaturedImage from './jetpack-ai-featured-image';
+import JetpackAIGeneralPurposeImageForBlock from './jetpack-ai-general-purpose-image-for-block';
+import JetpackAIGeneralPurposeImageForMediaSource from './jetpack-ai-general-purpose-image-for-media-source';
 import JetpackAppMedia from './jetpack-app-media';
 import OpenverseMedia from './openverse';
 import PexelsMedia from './pexels';
@@ -18,6 +25,30 @@ export const internalMediaSources = [
 		label: __( 'Your Phone', 'jetpack' ),
 		icon: <JetpackMobileAppIcon className="components-menu-items__item-icon" />,
 		keyword: 'jetpack mobile app',
+	},
+];
+
+/**
+ * Used when the context is for a featured image.
+ */
+export const featuredImageExclusiveMediaSources = [
+	{
+		id: SOURCE_JETPACK_AI_FEATURED_IMAGE,
+		label: __( 'Generate with AI', 'jetpack' ),
+		icon: aiAssistantIcon,
+		keyword: 'jetpack ai',
+	},
+];
+
+/**
+ * Used when the context is not the featured image, but a general purpose image.
+ */
+export const generalPurposeImageExclusiveMediaSources = [
+	{
+		id: SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_MEDIA_SOURCE,
+		label: __( 'Generate with AI', 'jetpack' ),
+		icon: aiAssistantIcon,
+		keyword: 'jetpack ai',
 	},
 ];
 
@@ -78,6 +109,12 @@ export function getExternalLibrary( type ) {
 		return OpenverseMedia;
 	} else if ( type === SOURCE_JETPACK_APP_MEDIA ) {
 		return JetpackAppMedia;
+	} else if ( type === SOURCE_JETPACK_AI_FEATURED_IMAGE ) {
+		return JetpackAIFeaturedImage;
+	} else if ( type === SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_MEDIA_SOURCE ) {
+		return JetpackAIGeneralPurposeImageForMediaSource;
+	} else if ( type === SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK ) {
+		return JetpackAIGeneralPurposeImageForBlock;
 	}
 	return null;
 }

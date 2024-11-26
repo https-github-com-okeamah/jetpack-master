@@ -13,12 +13,12 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 
 class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
-	/*
+	/**
 	 * @var array - The errors that occurred when removing the cache.
 	 */
 	private $removal_errors = array();
 
-	/*
+	/**
 	 * The signature used to identify the advanced-cache.php file owned by Jetpack Boost.
 	 */
 	const ADVANCED_CACHE_SIGNATURE = 'Boost Cache Plugin';
@@ -28,7 +28,7 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 	 */
 	const ADVANCED_CACHE_VERSION = 'v0.0.3';
 
-	/*
+	/**
 	 * @var Boost_Cache_Settings - The settings for the page cache.
 	 */
 	private $settings;
@@ -40,7 +40,8 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 	public function setup() {
 		Garbage_Collection::setup();
 
-		add_action( 'jetpack_boost_module_status_updated', array( $this, 'handle_module_status_updated' ), 10, 2 );
+		add_action( 'jetpack_boost_module_status_updated', array( $this, 'clear_cache_on_output_changing_module_toggle' ), 10, 2 );
+		add_action( 'jetpack_boost_module_status_updated', array( $this, 'delete_advanced_cache' ), 10, 2 );
 		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'invalidate_cache' ) );
 		add_action( 'jetpack_boost_critical_css_generated', array( $this, 'invalidate_cache' ) );
 		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_js_excludes', array( $this, 'invalidate_cache' ) );
@@ -53,7 +54,7 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 	 *
 	 * @param string $module_slug The slug of the module that was updated.
 	 */
-	public function handle_module_status_updated( $module_slug, $status ) {
+	public function clear_cache_on_output_changing_module_toggle( $module_slug, $status ) {
 		// Get a list of modules that can change the HTML output.
 		$output_changing_modules = Modules_Index::get_modules_implementing( Changes_Page_Output::class );
 
@@ -68,6 +69,15 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 
 		if ( in_array( $module_slug, $slugs, true ) ) {
 			$this->invalidate_cache();
+		}
+	}
+
+	/**
+	 * Handles the deactivation of the module by removing the advanced-cache.php file.
+	 */
+	public function delete_advanced_cache( $module_slug, $status ) {
+		if ( $module_slug === 'page_cache' && ! $status ) {
+			Page_Cache_Setup::delete_advanced_cache();
 		}
 	}
 
@@ -94,9 +104,13 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 	}
 
 	public static function is_available() {
-		// Disable Page Cache on Atomic.
-		// It already has caching enabled.
-		if ( ( new Host() )->is_woa_site() ) {
+		// Disable Page Cache on WoA and WP Cloud clients.
+		// They already have caching enabled.
+		if ( ( new Host() )->is_woa_site() || ( new Host() )->is_atomic_platform() ) {
+			if ( Page_Cache_Setup::can_run_cache() ) {
+				return true;
+			}
+
 			return false;
 		}
 
