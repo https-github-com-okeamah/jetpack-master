@@ -9,7 +9,10 @@
 function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` and hope any breaking changes will not really break.
-	if ( pkg.name === '@automattic/social-previews' ) {
+	if (
+		pkg.name === '@automattic/social-previews' ||
+		pkg.name === '@automattic/page-pattern-modal'
+	) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
 				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
@@ -19,9 +22,8 @@ function fixDeps( pkg ) {
 
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
-	// https://github.com/WordPress/gutenberg/issues/62250
 	if (
-		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/primitives' ) &&
+		pkg.name === '@wordpress/icons' &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
@@ -50,6 +52,15 @@ function fixDeps( pkg ) {
 			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
+			}
+		}
+	}
+
+	// Unnecessarily explicit deps. I don't think we really even need @wordpress/babel-preset-default at all.
+	if ( pkg.name === '@wordpress/babel-preset-default' || pkg.name === '@wordpress/eslint-plugin' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@babel/' ) && ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
 			}
 		}
 	}
@@ -98,6 +109,12 @@ function fixDeps( pkg ) {
 	if ( pkg.name === 'ajv-formats' && pkg.dependencies?.ajv && pkg.peerDependencies?.ajv ) {
 		delete pkg.dependencies.ajv;
 		delete pkg.peerDependenciesMeta?.ajv;
+	}
+
+	// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
+	// https://github.com/WordPress/gutenberg/issues/60975
+	if ( pkg.name === '@wordpress/components' && pkg.dependencies?.[ 'framer-motion' ] ) {
+		pkg.dependencies[ 'framer-motion' ] += ' <11.5.0';
 	}
 
 	// Types packages have outdated deps. Reset all their `@wordpress/*` deps to star-version,

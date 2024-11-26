@@ -1,3 +1,4 @@
+import { checkConnectionCode } from '../../utils/connections';
 import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
 
 /**
@@ -24,6 +25,24 @@ export function getConnectionById( state, connectionId ) {
 }
 
 /**
+ * Returns the broken connections.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @return {Array<import("../types").Connection>} List of broken connections.
+ */
+export function getBrokenConnections( state ) {
+	return getConnections( state ).filter( connection => {
+		return (
+			connection.status === 'broken' ||
+			// This is a legacy check for connections that are not healthy.
+			// TODO remove this check when we are sure that all connections have
+			// the status property (same schema for connections endpoints), e.g. on Simple/Atomic sites
+			checkConnectionCode( connection, 'broken' )
+		);
+	} );
+}
+
+/**
  * Returns connections by service name/ID.
  *
  * @param {import("../types").SocialStoreState} state       - State object.
@@ -33,15 +52,6 @@ export function getConnectionById( state, connectionId ) {
  */
 export function getConnectionsByService( state, serviceName ) {
 	return getConnections( state ).filter( ( { service_name } ) => service_name === serviceName );
-}
-
-/**
- * Returns the connections admin URL from the store.
- * @param {import("../types").SocialStoreState} state - State object.
- * @return {string|null} The connections admin URL.
- */
-export function getConnectionsAdminUrl( state ) {
-	return state.connectionData?.adminUrl ?? null;
 }
 
 /**
@@ -122,11 +132,22 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
 		);
 
 		if ( connection ) {
-			const { display_name, profile_display_name, profile_picture, external_display } = connection;
+			const {
+				display_name,
+				profile_display_name,
+				profile_picture,
+				external_display,
+				external_name,
+			} = connection;
 
 			displayName = 'twitter' === service ? profile_display_name : display_name || external_display;
 			username = 'twitter' === service ? display_name : connection.username;
 			profileImage = profile_picture;
+
+			// Connections schema is a mess
+			if ( 'bluesky' === service ) {
+				username = external_name;
+			}
 		}
 	}
 
@@ -160,7 +181,7 @@ export function getUpdatingConnections( state ) {
  * @return {import("../types").ConnectionData['reconnectingAccount']} The account being reconnected.
  */
 export function getReconnectingAccount( state ) {
-	return state.connectionData?.reconnectingAccount ?? '';
+	return state.connectionData?.reconnectingAccount;
 }
 
 /**
@@ -186,6 +207,20 @@ export function getAbortControllers( state, requestType = REQUEST_TYPE_DEFAULT )
 export function isMastodonAccountAlreadyConnected( state, username ) {
 	return getConnectionsByService( state, 'mastodon' ).some( connection => {
 		return connection.external_display === username;
+	} );
+}
+
+/**
+ * Whether a Bluesky account is already connected.
+ *
+ * @param {import("../types").SocialStoreState} state  - State object.
+ * @param {string}                              handle - The Bluesky handle.
+ *
+ * @return {boolean} Whether the Bluesky account is already connected.
+ */
+export function isBlueskyAccountAlreadyConnected( state, handle ) {
+	return getConnectionsByService( state, 'bluesky' ).some( connection => {
+		return connection.external_name === handle;
 	} );
 }
 

@@ -1,65 +1,71 @@
-## Jetpack 13.8
+## Jetpack 14.1
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 - You may need to connect Jetpack to a WordPress.com account to test some features, find out how to do that [here](https://jetpack.com/support/getting-started-with-jetpack/).
+- Blocks in beta status require a small change for you to be able to test them. You can do either of the following:
+  - Edit your `wp-config.php` file to include: `define( 'JETPACK_BLOCKS_VARIATION', 'beta' );`
+  - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
+	- To test Breve further in the document please enable the feature with the following snippet: `add_filter( 'breve_enabled', '__return_true' );`
 
-### Blocks
+## Growth Bundle 
+ 
+In this release, we are introducing a new Growth bundle that includes Stats, Social, and Newsletter paid features. 
 
-#### Breve
+#### Test functionality 
+   
+You need a site with the Jetpack Growth plan for this test. Make sure all features that come with Growth are working correctly and are not hidden behind paywalls or overlays. 
 
-- Make sure you are on the free plan.
-- Check that Breve is not loaded.
-- Add a Jetpack plan.
-- Check that Breve is enabled.
-- Hide the Jetpack AI Assistant block.
-- Check that Breve is disabled.
-- Unhide the block.
-- Check that Breve is re-enabled without a need to reload.
+- Go to the Stats page and ensure you can see all available stats with no upgrade overlays.
+- Go to `/wp-admin/admin.php?page=jetpack-social` and ensure you don't see any upsells and that all features are available.
+- Go to `/wp-admin/admin.php?page=jetpack#/newsletter` and activate Newsletter. Make sure you see no upsells and that all features are available.
 
-#### Don't attempt to use blocks that aren't available
+#### Bundle interstitials (including Growth) 
+  
+In My Jetpack, visit the following paths to make sure the bundle interstitials look good and the CTA's go to checkout with the correct item in the cart:
 
-It's possible to globally disable blocks for the entire site. This impacts blocks' availability in the editor, but also any other place on the site that relies on them or their code. The old classic slideshow is a good example of that: when used with the AMP plugin, it attempts to display a Slideshow block instead of the classic slideshow in AMP views. This has been fixed, but please also feel free to do some exploratory testing anywhere else you suspect this could be an issue.
+- `/wp-admin/admin.php?page=my-jetpack#/add-security`
+- `/wp-admin/admin.php?page=my-jetpack#/add-growth`
+- `/wp-admin/admin.php?page=my-jetpack#/add-complete`
 
-- Make sure the shortcodes module is active.
-- Make sure the AMP plugin is active.
-- In Media > Add New, upload a few images.
-- In Posts > Add New, add a classic block.
-- With the media modal, create a gallery, add the images.
-- Pick the slideshow gallery type.
-- Publish the post.
-- Visit the post.
-- In the admin menu bar, click on the AMP menu item to view the AMP version of the post.
-- The slideshow block is displayed properly.
-- Now go to Jetpack > Settings > Writing
-- Disable the Jetpack Blocks
-- Refresh the AMP page.
-- You should see no Fatal errors. The block may not be displayed properly depending on your AMP settings on the site though.
+Note: The images on the interstitials may be updated in the future, they've not been designed yet and we wanted to get this into the testing period so we shipped with existing images.
 
-### Fedivrerse creator meta tag from Mastodon connection
+#### Bundle recommendations (including Growth) 
+ 
+On a new testing site, connect your account via the welcome banner in My Jetpack. Fill out the survey with the options "Grow my audience" and "Create quality content". You should see the Growth bundle as the first recommendation.
 
-- Go to Jetpack > Settings > Sharing
-- Enable Jetpack Social, and connect your site to a test Mastodon account.
-- Go to Posts > Add New.
-- Write a post and publish it. In the post sidebar, ensure the post is shared to Mastodon.
-- Check the source of the post on the frontend: you should see this: .
-- Disable Jetpack Social.
-- Ensure the meta tag is gone, and that there are no errors on your site.
-Enable Jetpack Social again.
-- Now install and activate the ActivityPub plugin on your site.
-- Check that same post again. The meta tag added by Jetpack should be gone.
+- Ensure the Purchase and Learn More CTAs work correctly.
+- If you'd like, you can also play around with the survey to test the Complete and Security bundles too.
 
-### Masterbar feature has been removed for self-hosted sites
+#### Make sure Creator is no longer promoted in the plugin
 
-Note that this should only affect self-hosted sites and the features and WP.com toolbar should still load as expected on WoA sites.
-
-- On the Jetpack modules page, there should be no listing for the WordPress.com Toolbar: `/wp-admin/admin.php?page=jetpack_modules`.
-- On the Jetpack > Settings > Writing page, there should be no card for the WordPress.com Toolbar: `/wp-admin/admin.php?page=jetpack#/writing`.
-- If the feature was previously enabled, on Jetpack dashboard pages, you should see a notice mentioning the removal. The notice should also be visible on other wp-admin pages, as well as in My Jetpack.### Before you start:
+The Growth bundle is replacing the Creator product. Make sure you don't see any Creator upsells, ads, or promotions in the plugin.
+ 
+## Ensure list-to-table AI transform works as expected 
+  
+- Create a new post and create a top-level list (this will not work for sublists). 
+- On the top level list click the AI Assistant icon. 
+- There should now be an option "Turn list into table" in the menu. 
+- Upon clicking this option the block should be converted to an AI Assistant block, and the list will be turned into a table. 
+- If you click the trash icon ("Discard") the original list should be restored. 
+- Bring up the AI Assistant menu again. Click "Accept" after converting the list and your original list should be replaced by the table. 
+ 
+## Verify Slideshow block works as expected in Row and Column blocks 
+  
+- Add a Row block to a post. 
+- Add a Slideshow block inside the Row block. 
+- Add a few images to the Slideshow. 
+- Visit the post in the frontend and make sure the Slideshow works properly. 
+- Test the multiple Slideshow blocks inside a Row and inside Columns, and make sure it also works properly in the different scenarios. 
 
 ### And More!
+
+Other particularly noteworthy changes in 14.0 include:
+
+- Support for Bluesky in Jetpack Social.
+- Related Posts block can now be used on non-post CPTs.
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
 

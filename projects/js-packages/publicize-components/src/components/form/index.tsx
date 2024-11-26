@@ -7,11 +7,13 @@
  */
 
 import { Disabled, PanelRow } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
-import { usePublicizeConfig } from '../../..';
+import { getSocialScriptData, usePublicizeConfig } from '../../..';
+import useAttachedMedia from '../../hooks/use-attached-media';
+import useFeaturedImage from '../../hooks/use-featured-image';
+import useMediaDetails from '../../hooks/use-media-details';
+import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { store as socialStore } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { SocialPostModal } from '../social-post-modal/modal';
 import { ConnectionNotice } from './connection-notice';
@@ -25,31 +27,41 @@ import { SharePostForm } from './share-post-form';
  * @return {object} - Publicize form component.
  */
 export default function PublicizeForm() {
-	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
+	const { hasConnections, hasEnabledConnections, connections } = useSocialMediaConnections();
 	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan } = usePublicizeConfig();
+	const { attachedMedia } = useAttachedMedia();
+	const featuredImageId = useFeaturedImage();
 
-	const { useAdminUiV1, featureFlags } = useSelect( select => {
-		const store = select( socialStore );
-		return {
-			useAdminUiV1: store.useAdminUiV1(),
-			featureFlags: store.featureFlags(),
-		};
-	}, [] );
+	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
+	const { validationErrors, isConvertible } = useMediaRestrictions(
+		connections,
+		useMediaDetails( mediaId )[ 0 ]
+	);
+
+	const showSharePostForm =
+		isPublicizeEnabled &&
+		( hasEnabledConnections ||
+			// We show the form if there is any attached media or validation errors to let the user
+			// fix the issues with uploading an image.
+			attachedMedia.length > 0 ||
+			( Object.keys( validationErrors ).length !== 0 && ! isConvertible ) );
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
+
+	const { feature_flags } = getSocialScriptData();
 
 	return (
 		<Wrapper>
 			{
 				// Render modal only once
-				useAdminUiV1 ? <ManageConnectionsModal /> : null
+				feature_flags.useAdminUiV1 ? <ManageConnectionsModal /> : null
 			}
 			{ hasConnections ? (
 				<>
 					<PanelRow>
 						<ConnectionsList />
 					</PanelRow>
-					{ featureFlags.useEditorPreview && isPublicizeEnabled ? <SocialPostModal /> : null }
+					{ feature_flags.useEditorPreview && isPublicizeEnabled ? <SocialPostModal /> : null }
 					<EnhancedFeaturesNudge />
 				</>
 			) : null }
@@ -57,9 +69,7 @@ export default function PublicizeForm() {
 
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
-					{ isPublicizeEnabled && hasEnabledConnections && (
-						<SharePostForm analyticsData={ { location: 'editor' } } />
-					) }
+					{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
 				</Fragment>
 			) }
 		</Wrapper>

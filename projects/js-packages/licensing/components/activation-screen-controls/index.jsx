@@ -3,10 +3,10 @@ import { JetpackLogo, Spinner } from '@automattic/jetpack-components';
 import { Button, TextControl, SelectControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import { Icon, warning } from '@wordpress/icons';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
+import ActivationScreenError from '../activation-screen-error';
+import { LICENSE_ERRORS } from '../activation-screen-error/constants';
 import './style.scss';
 
 /**
@@ -24,6 +24,7 @@ const ManualLicenseKeyInput = props => {
 
 	return (
 		<TextControl
+			__nextHasNoMarginBottom={ true }
 			className={ className }
 			label={ __( 'License key', 'jetpack' ) }
 			value={ value }
@@ -97,6 +98,7 @@ const SelectableLicenseKeyInput = props => {
 	return (
 		<>
 			<SelectControl
+				__nextHasNoMarginBottom={ true }
 				className={ className }
 				disabled={ disabled }
 				label={ __( 'Select a license key', 'jetpack' ) }
@@ -107,6 +109,7 @@ const SelectableLicenseKeyInput = props => {
 
 			{ ! isFetching && ! selectedOption && (
 				<TextControl
+					__nextHasNoMarginBottom={ true }
 					className={ className }
 					label={ __( 'Input a license key', 'jetpack' ) }
 					value={ value }
@@ -142,15 +145,26 @@ const ActivationScreenControls = props => {
 		licenseError,
 		onLicenseChange,
 	} = props;
-	const hasLicenseError = licenseError !== null && licenseError !== undefined;
 
 	useEffect( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_key_activation_view' );
 	}, [] );
 
-	const className = hasLicenseError
-		? 'jp-license-activation-screen-controls--license-field-with-error'
-		: 'jp-license-activation-screen-controls--license-field';
+	const errorTypeMatch = licenseError?.match( /\[[a-z_]+\]/ );
+	const errorType = errorTypeMatch && errorTypeMatch[ 0 ];
+
+	const { ACTIVE_ON_SAME_SITE } = LICENSE_ERRORS;
+	const isLicenseAlreadyAttached = ACTIVE_ON_SAME_SITE === errorType;
+	const className = useMemo( () => {
+		if ( ! licenseError ) {
+			return 'jp-license-activation-screen-controls--license-field';
+		}
+		if ( isLicenseAlreadyAttached ) {
+			return 'jp-license-activation-screen-controls--license-field-with-success';
+		}
+
+		return 'jp-license-activation-screen-controls--license-field-with-error';
+	}, [ licenseError, isLicenseAlreadyAttached ] );
 
 	const hasAvailableLicenseKey = availableLicenses && availableLicenses.length;
 
@@ -186,11 +200,8 @@ const ActivationScreenControls = props => {
 						value={ license }
 					/>
 				) }
-				{ hasLicenseError && (
-					<div className="jp-license-activation-screen-controls--license-field-error">
-						<Icon icon={ warning } />
-						<span>{ licenseError }</span>
-					</div>
+				{ licenseError && (
+					<ActivationScreenError licenseError={ licenseError } errorType={ errorType } />
 				) }
 			</div>
 			<div>

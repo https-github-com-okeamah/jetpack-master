@@ -59,7 +59,7 @@ export function PreviewSection() {
 					} )
 			);
 		},
-		[ getService, shouldBeDisabled ]
+		[ canBeTurnedOn, getService, shouldBeDisabled ]
 	);
 
 	const { toggleConnectionById } = useDispatch( socialStore );
@@ -98,6 +98,7 @@ export function PreviewSection() {
 										}
 										checked={ isEnabled }
 										onChange={ toggleConnection( tab.connection_id, tab ) }
+										__nextHasNoMarginBottom={ true }
 									/>
 								) : null
 							}

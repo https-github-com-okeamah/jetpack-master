@@ -67,7 +67,7 @@ async function hasProgressLabel( octokit, owner, repo, number ) {
 async function getMilestoneDates( plugin, nextMilestone ) {
 	let releaseDate = 'none scheduled';
 	let codeFreezeDate;
-	if ( nextMilestone && nextMilestone.hasOwnProperty( 'due_on' ) && nextMilestone.due_on ) {
+	if ( nextMilestone && Object.hasOwn( nextMilestone, 'due_on' ) && nextMilestone.due_on ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
 
 		// Look for a code freeze date in the milestone description.
@@ -79,9 +79,9 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 			codeFreezeDate = moment( freezeDateDescription[ 1 ] ).format( 'LL' );
 		}
 	} else if ( plugin === 'wpcomsh' ) {
-		releaseDate = 'on demand (usually Mondays if not sooner)';
+		releaseDate = 'Atomic deploys happen twice daily on weekdays (p9o2xV-2EN-p2)';
 	} else if ( plugin === 'mu-wpcom' ) {
-		releaseDate = 'WordPress.com Simple releases happen daily';
+		releaseDate = 'WordPress.com Simple releases happen semi-continuously (PCYsg-Jjm-p2)';
 	}
 
 	const capitalizedName = plugin
@@ -100,7 +100,7 @@ ${
 	'Jetpack' === capitalizedName
 		? `The Jetpack plugin has different release cadences depending on the platform:
 
-- WordPress.com Simple releases happen daily.
+- WordPress.com Simple releases happen semi-continuously (PCYsg-Jjm-p2).
 - WoA releases happen weekly.
 - Releases to self-hosted sites happen monthly. The next release is scheduled for _${ releaseDate }_ (scheduled code freeze on _${ codeFreezeDate }_).`
 		: `

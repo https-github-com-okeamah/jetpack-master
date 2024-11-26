@@ -1,9 +1,9 @@
 === Jetpack VaultPress Backup ===
 Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, pypt, samiff, sermitr, williamvianas
 Tags: jetpack, backup, restore
-Requires at least: 6.5
-Requires PHP: 7.0
-Tested up to: 6.6
+Requires at least: 6.6
+Requires PHP: 7.2
+Tested up to: 6.7
 Stable tag: 2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -175,15 +175,18 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 2.7 - 2024-06-27
+### 3.0 - 2024-11-14
 #### Added
-- On-demand backups feature
+- Display next scheduled daily backup time on the admin page.
 
 #### Changed
-- General: indicate compatibility with the upcoming version of WordPress - 6.6.
-- Remove the explicit Plugin Install package dependency.
+- Exclude discarded backups from being counted as successful on the admin page.
+- General: Indicate compatibility with WordPress version 6.7.
 - Updated package dependencies.
-- Updated backup header layout for responsive design
+- Various internal updates and improvements.
+
+#### Fixed
+- Resolved an issue on the pricing page where the loading placeholder remained visible after the price loaded.
 
 --------
 

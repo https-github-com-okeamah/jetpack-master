@@ -1,6 +1,6 @@
 /* global jetpack_redirects */
 
-import { GetRedirectUrlArgs, QueryVars } from './types';
+import { GetRedirectUrlArgs, QueryVars } from './types.js';
 
 /**
  * Builds an URL using the jetpack.com/redirect/ service
@@ -45,7 +45,7 @@ export default function getRedirectUrl( source: string, args: GetRedirectUrlArgs
 	if (
 		! Object.keys( queryVars ).includes( 'site' ) &&
 		typeof jetpack_redirects !== 'undefined' &&
-		jetpack_redirects.hasOwnProperty( 'currentSiteRawUrl' )
+		Object.hasOwn( jetpack_redirects, 'currentSiteRawUrl' )
 	) {
 		queryVars.site = jetpack_redirects.currentBlogID ?? jetpack_redirects.currentSiteRawUrl;
 	}

@@ -652,7 +652,7 @@ export function getInitialRecommendationsStep( state ) {
  */
 export function getConnectionErrors( state ) {
 	return get( state.jetpack.initialState, [ 'connectionStatus', 'errors' ], [] ).filter( error =>
-		error.hasOwnProperty( 'action' )
+		Object.hasOwn( error, 'action' )
 	);
 }
 
@@ -713,10 +713,10 @@ export function isOdysseyStatsEnabled( state ) {
  * Returns true if Blaze can be used on the site.
  *
  * @param {object} state - Global state tree.
- * @return {boolean} True if Blaze is available on the site.
+ * @return {object} A boolean indicating if Blaze can be used and a reason why if it cannot.
  */
 export function shouldInitializeBlaze( state ) {
-	return !! state.jetpack.initialState.shouldInitializeBlaze;
+	return state.jetpack.initialState.shouldInitializeBlaze;
 }
 
 /**
@@ -777,14 +777,4 @@ export function getNewsetterDateExample( state ) {
  */
 export function subscriptionSiteEditSupported( state ) {
 	return !! state.jetpack.initialState.subscriptionSiteEditSupported;
-}
-
-/**
- * Get the Jetpack Social Initial State
- *
- * @param {object} state - Global state tree.
- * @return {object} Jetpack Social Initial State
- */
-export function getSocialInitiaState( state ) {
-	return state.jetpack.initialState.socialInitialState ?? {};
 }

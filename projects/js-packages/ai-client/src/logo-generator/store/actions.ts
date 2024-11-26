@@ -28,6 +28,7 @@ import {
 	ACTION_SET_LOGO_UPDATE_ERROR,
 	ACTION_SET_SAVE_TO_LIBRARY_ERROR,
 	ACTION_SET_CONTEXT,
+	ACTION_SET_IS_LOADING_HISTORY,
 } from './constants.js';
 import type {
 	AiFeatureProps,
@@ -64,6 +65,7 @@ export function mapAiFeatureResponseToAiFeatureProps(
 		nextTier: response[ 'next-tier' ],
 		tierPlansEnabled: !! response[ 'tier-plans-enabled' ],
 		costs: response.costs,
+		featuresControl: response[ 'features-control' ],
 	};
 }
 
@@ -90,6 +92,10 @@ const actions = {
 					path: '/wpcom/v2/jetpack-ai/ai-assistant-feature',
 					query: 'force=wpcom',
 				} );
+
+				if ( response.data ) {
+					throw new Error( 'Failed to fetch' );
+				}
 
 				// Store the feature in the store.
 				dispatch(
@@ -244,6 +250,13 @@ const actions = {
 		return {
 			type: ACTION_SET_CONTEXT,
 			context,
+		};
+	},
+
+	setIsLoadingHistory( isLoadingHistory: boolean ) {
+		return {
+			type: ACTION_SET_IS_LOADING_HISTORY,
+			isLoadingHistory,
 		};
 	},
 };

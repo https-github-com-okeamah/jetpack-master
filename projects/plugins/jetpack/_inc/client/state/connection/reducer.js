@@ -73,9 +73,10 @@ export const user = ( state = window.Initial_State.userData || {}, action ) => {
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			return assign( {}, state, action.userConnectionData );
 
-		case UNLINK_USER_SUCCESS:
+		case UNLINK_USER_SUCCESS: {
 			const currentUser = assign( {}, state.currentUser, { isConnected: false } );
 			return assign( {}, state, { currentUser } );
+		}
 
 		case MOCK_SWITCH_USER_PERMISSIONS:
 			return merge( {}, state, action.initialState );
@@ -300,7 +301,7 @@ export function isConnectingUser( state ) {
  * @return {string|null} string if feature label exists, false otherwise.
  */
 export function getConnectingUserFeatureLabel( state ) {
-	return state.jetpack.connection.requests.hasOwnProperty( 'connectingUserFeatureLabel' )
+	return Object.hasOwn( state.jetpack.connection.requests, 'connectingUserFeatureLabel' )
 		? state.jetpack.connection.requests.connectingUserFeatureLabel
 		: null;
 }
@@ -312,7 +313,7 @@ export function getConnectingUserFeatureLabel( state ) {
  * @return {string|null} string if "from" value exists, false otherwise.
  */
 export function getConnectingUserFrom( state ) {
-	return state.jetpack.connection.requests.hasOwnProperty( 'connectingUserFrom' )
+	return Object.hasOwn( state.jetpack.connection.requests, 'connectingUserFrom' )
 		? state.jetpack.connection.requests.connectingUserFrom
 		: null;
 }

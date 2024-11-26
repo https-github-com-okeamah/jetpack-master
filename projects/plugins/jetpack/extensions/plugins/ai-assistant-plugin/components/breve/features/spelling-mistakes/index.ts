@@ -8,17 +8,12 @@ import nspell from 'nspell';
 /**
  * Internal dependencies
  */
-import getDictionary from '../../utils/get-dictionary';
+import getFeatureData from '../../utils/get-feature-data';
+import a8c from './a8c';
 /**
  * Types
  */
-import type {
-	BreveFeatureConfig,
-	SpellingDictionaryContext,
-	HighlightedText,
-	SpellChecker,
-	BreveDispatch,
-} from '../../types';
+import type { BreveFeatureConfig, HighlightedText, SpellChecker, BreveDispatch } from '../../types';
 
 const debug = debugFactory( 'jetpack-ai-breve:spelling-mistakes' );
 
@@ -27,57 +22,10 @@ export const SPELLING_MISTAKES: BreveFeatureConfig = {
 	title: __( 'Spelling mistakes', 'jetpack' ),
 	tagName: 'span',
 	className: 'jetpack-ai-breve__has-proofread-highlight--spelling-mistakes',
-	defaultEnabled: false,
+	defaultEnabled: true,
 };
 
 const spellCheckers: { [ key: string ]: SpellChecker } = {};
-const contextRequests: {
-	[ key: string ]: { loading: boolean; loaded: boolean; failed: boolean };
-} = {};
-
-const fetchContext = async ( language: string ) => {
-	debug( 'Fetching spelling context from the server' );
-
-	const { setDictionaryLoading } = dispatch( 'jetpack/ai-breve' ) as BreveDispatch;
-
-	setDictionaryLoading( SPELLING_MISTAKES.name, true );
-
-	try {
-		contextRequests[ language ] = { loading: true, loaded: false, failed: false };
-		const data = await getDictionary( SPELLING_MISTAKES.name, language );
-
-		localStorage.setItem(
-			`jetpack-ai-breve-spelling-context-${ language }`,
-			JSON.stringify( data )
-		);
-
-		contextRequests[ language ] = { loading: false, loaded: true, failed: false };
-		debug( 'Loaded spelling context from the server' );
-	} catch ( error ) {
-		debug( 'Failed to fetch spelling context', error );
-		contextRequests[ language ] = { loading: false, loaded: false, failed: true };
-		// TODO: Handle retries
-	} finally {
-		setDictionaryLoading( SPELLING_MISTAKES.name, false );
-	}
-};
-
-const getContext = ( language: string ) => {
-	// First check if the context is already defined in local storage
-	const storedContext = localStorage.getItem( `jetpack-ai-breve-spelling-context-${ language }` );
-	let context: SpellingDictionaryContext | null = null;
-	const { loading, failed } = contextRequests[ language ] || {};
-
-	if ( storedContext ) {
-		context = JSON.parse( storedContext );
-		debug( 'Loaded spelling context from local storage' );
-	} else if ( ! loading && ! failed ) {
-		// If the context is not in local storage and we haven't failed to fetch it before, try to fetch it once
-		fetchContext( language );
-	}
-
-	return context;
-};
 
 export const getSpellChecker = ( { language = 'en' }: { language?: string } = {} ) => {
 	if ( spellCheckers[ language ] ) {
@@ -86,7 +34,7 @@ export const getSpellChecker = ( { language = 'en' }: { language?: string } = {}
 
 	// Cannot await here as the Rich Text function needs to be synchronous.
 	// Load of the dictionary in the background if necessary and re-trigger the highlights later.
-	const spellingContext = getContext( language );
+	const spellingContext = getFeatureData( { feature: SPELLING_MISTAKES.name, language } );
 
 	if ( ! spellingContext ) {
 		return null;
@@ -104,6 +52,9 @@ export const getSpellChecker = ( { language = 'en' }: { language?: string } = {}
 		)
 	);
 	exceptions.forEach( exception => spellChecker.add( exception ) );
+
+	// Add the Automattic dictionary
+	spellChecker.personal( a8c );
 
 	spellCheckers[ language ] = spellChecker;
 
@@ -143,7 +94,7 @@ export const addTextToDictionary = (
 	// Recompute the spell checker on the next call
 	delete spellCheckers[ language ];
 
-	reloadDictionary( SPELLING_MISTAKES.name );
+	reloadDictionary();
 
 	debug( 'Added text to the dictionary', text );
 };
@@ -154,8 +105,13 @@ export const suggestSpellingFixes = (
 ) => {
 	const spellChecker = getSpellChecker( { language } );
 
-	if ( ! spellChecker ) {
+	if ( ! spellChecker || ! text ) {
 		return [];
+	}
+
+	// capital_P_dangit
+	if ( text.toLocaleLowerCase() === 'wordpress' ) {
+		return [ 'WordPress' ];
 	}
 
 	const suggestions = spellChecker.suggest( text );
@@ -165,37 +121,53 @@ export const suggestSpellingFixes = (
 
 export default function spellingMistakes( text: string ): Array< HighlightedText > {
 	const highlightedTexts: Array< HighlightedText > = [];
-	// Regex to match words, including contractions and hyphenated words, possibly prefixed with special characters
-	// \p{L} is a Unicode property that matches any letter in any language
-	// \p{M} is a Unicode property that matches any character intended to be combined with another character
-	const wordRegex = new RegExp( /[@#+$]{0,1}[\p{L}\p{M}'-]+/, 'gu' );
-	const words = ( text.match( wordRegex ) || [] )
-		// Filter out words that start with special characters
-		.filter( word => [ '@', '#', '+', '$' ].indexOf( word[ 0 ] ) === -1 )
-		// Split hyphenated words into separate words as nspell doesn't work well with them
-		.map( word => word.split( '-' ) )
-		.flat();
 	const spellChecker = getSpellChecker();
 
 	if ( ! spellChecker ) {
 		return highlightedTexts;
 	}
 
-	// To avoid highlighting the same word occurrence multiple times
-	let searchStartIndex = 0;
+	// Regex to match words, including contractions, hyphenated words, and words separated by slashes
+	// \p{L} matches any Unicode letter in any language
+	// \p{M} matches any Unicode mark (combining characters)
+	// The regex has three main parts:
+	// 1. [@#+$/]{0,1} - Optionally matches a single special character at the start
+	// 2. [\p{L}\p{M}\p{N}'-]+ - Matches one or more letters, marks, numbers, apostrophes, or hyphens
+	// 3. (?:\/[\p{L}\p{M}\p{N}'-]+)* - Optionally matches additional parts separated by slashes
+	const wordRegex = new RegExp( /[@#+$/]{0,1}[\p{L}\p{M}\p{N}'-]+(?:\/[\p{L}\p{M}\p{N}'-]+)*/gu );
+	const matches = Array.from( text.matchAll( wordRegex ) );
 
-	words.forEach( ( word: string ) => {
-		const wordIndex = text.indexOf( word, searchStartIndex );
+	matches.forEach( match => {
+		const word = match[ 0 ];
+		const startIndex = match.index as number;
 
-		if ( ! spellChecker.correct( word ) ) {
-			highlightedTexts.push( {
-				text: word,
-				startIndex: wordIndex,
-				endIndex: wordIndex + word.length,
-			} );
+		// Skip words that start with special characters
+		if ( [ '@', '#', '+', '$', '/' ].indexOf( word[ 0 ] ) !== -1 ) {
+			return;
 		}
 
-		searchStartIndex = wordIndex + word.length;
+		// Skip anything that is a valid number
+		if ( ! isNaN( Number( word ) ) ) {
+			return;
+		}
+
+		// Split words by hyphens and slashes
+		const subWords = word.split( /[-/]/ );
+
+		subWords.forEach( subWord => {
+			// remove single quotes from beginning/end
+			subWord = subWord.replace( /^'+|'+$/g, '' );
+
+			if ( ! spellChecker.correct( subWord ) ) {
+				const subWordStartIndex = startIndex + word.indexOf( subWord );
+
+				highlightedTexts.push( {
+					text: subWord,
+					startIndex: subWordStartIndex,
+					endIndex: subWordStartIndex + subWord.length,
+				} );
+			}
+		} );
 	} );
 
 	return highlightedTexts;

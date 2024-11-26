@@ -221,7 +221,6 @@ class REST_Connector {
 					'registration_nonce' => array(
 						'description' => __( 'The registration nonce', 'jetpack-connection' ),
 						'type'        => 'string',
-						'required'    => true,
 					),
 					'redirect_uri'       => array(
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
@@ -545,18 +544,18 @@ class REST_Connector {
 	 *
 	 * @since 1.30.1
 	 *
-	 * @return bool|WP_Error True if user is able to disconnect the site.
+	 * @since 5.1.0 Modified the permission check to accept requests signed with blog tokens.
+	 *
+	 * @return bool|WP_Error True if user is able to disconnect the site or the request is signed with a blog token (aka a direct request from WPCOM).
 	 */
 	public static function disconnect_site_permission_check() {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {
 			return true;
 		}
 
-		return new WP_Error(
-			'invalid_user_permission_jetpack_disconnect',
-			self::get_user_permissions_error_msg(),
-			array( 'status' => rest_authorization_required_code() )
-		);
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -791,7 +790,8 @@ class REST_Connector {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public function connection_register( $request ) {
-		if ( ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
+		// Only require nonce if cookie authentication is used.
+		if ( did_action( 'auth_cookie_valid' ) && ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
 			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack-connection' ), array( 'status' => 403 ) );
 		}
 
