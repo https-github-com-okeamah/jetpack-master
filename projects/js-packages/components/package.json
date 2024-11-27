@@ -14,25 +14,25 @@
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Components"
 	},
 	"dependencies": {
-		"@automattic/format-currency": "1.0.1",
+		"@automattic/format-currency": "2.0.0",
 		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@babel/runtime": "^7",
-		"@wordpress/browserslist-config": "6.9.0",
+		"@wordpress/browserslist-config": "6.10.0",
 		"@wordpress/components": "28.9.0",
 		"@wordpress/compose": "7.9.0",
-		"@wordpress/data": "10.9.0",
-		"@wordpress/date": "5.9.0",
+		"@wordpress/data": "10.11.0",
+		"@wordpress/date": "5.10.0",
 		"@wordpress/element": "6.9.0",
-		"@wordpress/i18n": "5.9.0",
+		"@wordpress/i18n": "5.10.0",
 		"@wordpress/icons": "10.9.0",
 		"@wordpress/notices": "5.9.0",
 		"clsx": "2.1.1",
 		"prop-types": "^15.7.2",
-		"qrcode.react": "3.1.0",
+		"qrcode.react": "4.0.1",
 		"react-slider": "2.0.5",
 		"social-logos": "workspace:*",
 		"uplot": "1.6.31",
-		"uplot-react": "1.1.4"
+		"uplot-react": "1.2.2"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
