@@ -39,7 +39,7 @@
 		"fork-ts-checker-webpack-plugin": "9.0.2",
 		"mini-css-extract-plugin": "2.9.1",
 		"terser-webpack-plugin": "5.3.3",
-		"thread-loader": "3.0.4"
+		"thread-loader": "4.0.4"
 	},
 	"devDependencies": {
 		"@babel/core": "7.24.7",
