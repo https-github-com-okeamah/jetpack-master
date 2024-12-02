@@ -33,7 +33,7 @@
 		"@tanstack/react-query-devtools": "5.20.5",
 		"@wordpress/api-fetch": "7.9.0",
 		"@wordpress/components": "28.9.0",
-		"@wordpress/data": "10.9.0",
+		"@wordpress/data": "10.11.0",
 		"@wordpress/date": "5.9.0",
 		"@wordpress/element": "6.9.0",
 		"@wordpress/i18n": "5.9.0",
