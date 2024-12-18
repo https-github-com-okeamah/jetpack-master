@@ -34,7 +34,7 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/api-fetch": "7.9.0",
-		"@wordpress/components": "28.9.0",
+		"@wordpress/components": "28.13.0",
 		"@wordpress/data": "10.9.0",
 		"@wordpress/date": "5.9.0",
 		"@wordpress/element": "6.9.0",
