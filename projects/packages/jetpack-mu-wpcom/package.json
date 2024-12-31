@@ -59,7 +59,7 @@
 		"@sentry/browser": "8.33.0",
 		"@tanstack/react-query": "^5.15.5",
 		"@wordpress/api-fetch": "7.12.0",
-		"@wordpress/base-styles": "5.12.0",
+		"@wordpress/base-styles": "5.13.0",
 		"@wordpress/blocks": "14.1.0",
 		"@wordpress/components": "28.12.0",
 		"@wordpress/data": "10.12.0",
